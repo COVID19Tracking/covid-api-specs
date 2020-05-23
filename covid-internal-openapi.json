@@ -1,0 +1,569 @@
+{
+    "openapi": "3.0.2",
+    "info": {
+        "title": "COVID Tracking Internal API",
+        "version": "0.0.1",
+        "description": "COVID Tracking Internal API"
+    },
+    "servers": [
+        {
+            "url": "https://internalapi.covidtracking.com/api/v1",
+            "description": ""
+        }
+    ],
+    "paths": {
+        "/public/states/daily": {
+            "get": {
+                "tags": [
+                    "public"
+                ],
+                "parameters": [
+                    {
+                        "name": "preview",
+                        "description": "If true, returns results using the most recent data in the preview state. \nOtherwise, only published data is returned.",
+                        "schema": {
+                            "type": "boolean"
+                        },
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/CoreDataHistoricalState"
+                                }
+                            }
+                        },
+                        "description": "States daily time series"
+                    }
+                },
+                "summary": "States historical data. Entries saved each day at 4 pm ET."
+            }
+        },
+        "/public/us/daily": {
+            "get": {
+                "tags": [
+                    "public"
+                ],
+                "parameters": [
+                    {
+                        "name": "preview",
+                        "description": "If true, returns results using the most recent data in the preview state. \nOtherwise, only published data is returned.",
+                        "schema": {
+                            "type": "boolean"
+                        },
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/CoreDataHistorical"
+                                    }
+                                }
+                            }
+                        },
+                        "description": "Daily time series data"
+                    }
+                },
+                "summary": "US historical data. Entries saved each day at 4 pm ET."
+            }
+        },
+        "/batches": {
+            "get": {
+                "tags": [
+                    "batches"
+                ],
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/Batch"
+                                    }
+                                }
+                            }
+                        },
+                        "description": "Retrieve all known batches"
+                    }
+                },
+                "summary": "Get all known batches"
+            },
+            "post": {
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/BatchForPush"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "tags": [
+                    "batches"
+                ],
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/BatchPostResult"
+                                }
+                            }
+                        },
+                        "description": "successful operation"
+                    },
+                    "400": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/IntegrityErrors"
+                                }
+                            }
+                        },
+                        "description": "Data integrity validation failed"
+                    }
+                },
+                "summary": "Push a new batch of data to the database",
+                "description": "The newly added core data will be in the preview state until published. \nUpdated StateInfo will be immediately edited."
+            }
+        },
+        "/batches/{batchId}": {
+            "summary": "Retrieve a batch",
+            "get": {
+                "tags": [
+                    "batches"
+                ],
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Batch"
+                                }
+                            }
+                        },
+                        "description": "Retrieve a batch"
+                    },
+                    "404": {
+                        "description": "No such batch ID exists"
+                    }
+                },
+                "summary": "Get a batch"
+            },
+            "delete": {
+                "tags": [
+                    "batches"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Batch removed"
+                    },
+                    "404": {
+                        "description": "Batch ID does not exist"
+                    },
+                    "405": {
+                        "description": "Batch cannot be deleted because it is in the published state"
+                    }
+                },
+                "summary": "Remove batch",
+                "description": "This operation is only applicable to batches in the preview state. Published batches cannot be removed."
+            },
+            "parameters": [
+                {
+                    "examples": {
+                        "exampleBatchId": {
+                            "value": "1234"
+                        }
+                    },
+                    "name": "batchId",
+                    "description": "The batch ID to manipulate",
+                    "schema": {
+                        "type": "integer"
+                    },
+                    "in": "path",
+                    "required": true
+                }
+            ]
+        },
+        "/batches/{batchId}/publish": {
+            "post": {
+                "tags": [
+                    "batches"
+                ],
+                "parameters": [
+                    {
+                        "name": "batchId",
+                        "description": "The batch ID to be published (must be in the preview state). ",
+                        "schema": {
+                            "type": "integer"
+                        },
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/BatchPostResult"
+                                }
+                            }
+                        },
+                        "description": "Batch has been sucuessfully published"
+                    },
+                    "404": {
+                        "description": "No batch ID exists with the specified batchId"
+                    }
+                },
+                "summary": "Publish batch",
+                "description": "Publish a batch currently in the preview state"
+            },
+            "parameters": [
+                {
+                    "name": "batchId",
+                    "description": "ID of the batch to publish",
+                    "schema": {
+                        "type": "integer"
+                    },
+                    "in": "path",
+                    "required": true
+                }
+            ]
+        },
+        "/public/states/info": {
+            "summary": "Retrieves the list of states and associated metadata",
+            "description": "The project includes Washington DC and US territories as states",
+            "get": {
+                "tags": [
+                    "public"
+                ],
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/StateInfo"
+                                    }
+                                }
+                            }
+                        },
+                        "description": "successful operation"
+                    }
+                },
+                "summary": "Retrieve state metadata"
+            }
+        }
+    },
+    "components": {
+        "schemas": {
+            "CoreData": {
+                "$ref": "https://raw.githubusercontent.com/COVID19Tracking/covid-api-specs/draft-internal-api/covid-shared-datatypes-openapi.json#/components/schemas/CoreData"
+            },
+            "StateInfo": {
+                "$ref": "https://raw.githubusercontent.com/COVID19Tracking/covid-api-specs/draft-internal-api/covid-shared-datatypes-openapi.json#/components/schemas/StateInfo"
+            },
+            "BatchForPush": {
+                "description": "A full set of data from the spreadsheet to be sent in a push",
+                "required": [
+                    "context"
+                ],
+                "type": "object",
+                "properties": {
+                    "context": {
+                        "$ref": "#/components/schemas/PushContext",
+                        "description": ""
+                    },
+                    "states": {
+                        "description": "",
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/StateInfo"
+                        }
+                    },
+                    "coreData": {
+                        "description": "",
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/CoreDataInternalState"
+                        }
+                    }
+                }
+            },
+            "PushContext": {
+                "description": "Metadata about a push",
+                "required": [
+                    "dataEntryType"
+                ],
+                "type": "object",
+                "properties": {
+                    "shiftLead": {
+                        "description": "An identifier for the shift lead responsible for the batch",
+                        "type": "string"
+                    },
+                    "batchNote": {
+                        "description": "Additonal notes explaining the batch",
+                        "type": "string"
+                    },
+                    "dataEntryType": {
+                        "description": "Describes the type of batch. A daily push?",
+                        "enum": [
+                            "daily"
+                        ],
+                        "type": "string"
+                    }
+                }
+            },
+            "BatchPostResult": {
+                "title": "Root Type for BatchPostResult",
+                "description": "Returned by a sucuessful batch operation",
+                "required": [
+                    "batchId",
+                    "isPublished"
+                ],
+                "type": "object",
+                "properties": {
+                    "batchId": {
+                        "format": "int32",
+                        "description": "The ID of the batch operation",
+                        "type": "integer"
+                    },
+                    "isPublished": {
+                        "description": "True if the batch is in the published state, false if it is in the preview state",
+                        "type": "boolean"
+                    }
+                },
+                "example": {
+                    "batchId": 123,
+                    "isPublished": false
+                }
+            },
+            "CoreDataInternal": {
+                "description": "Data fields pushed from the data entry spreadsheet to the database, including all CoreData",
+                "type": "object",
+                "allOf": [
+                    {
+                        "type": "object",
+                        "properties": {
+                            "privateNotes": {
+                                "description": "Private notes from the data entry team",
+                                "type": "string"
+                            },
+                            "checker": {
+                                "description": "An identifier (typically initials) for the checker from the Data Entry team",
+                                "type": "string"
+                            },
+                            "doubleChecker": {
+                                "description": "An identifier (typically initials) for the double checker from the Data Entry team",
+                                "type": "string"
+                            },
+                            "dataQualityGrade": {
+                                "description": "",
+                                "type": "string"
+                            },
+                            "lastUpdateIsoUtc": {
+                                "format": "date-time",
+                                "description": "The \"as-of\" datetime of the data source (not when the data was published)",
+                                "type": "string"
+                            },
+                            "dateChecked": {
+                                "format": "date-time",
+                                "description": "The datetime we last visited their website",
+                                "type": "string"
+                            },
+                            "publicationDate": {
+                                "format": "date",
+                                "description": "The date that we release the data. When there are historical edits, this value will be different from the current date.",
+                                "type": "string"
+                            }
+                        }
+                    },
+                    {
+                        "$ref": "#/components/schemas/CoreData"
+                    }
+                ]
+            },
+            "IntegrityErrors": {
+                "description": "Data integrity check errors ",
+                "type": "object",
+                "properties": {
+                    "errors": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    }
+                },
+                "example": {
+                    "errors": [
+                        "State 'NY' missing required value 'date'"
+                    ]
+                }
+            },
+            "Batch": {
+                "description": "",
+                "required": [
+                    "batchId"
+                ],
+                "type": "object",
+                "properties": {
+                    "batchId": {
+                        "description": "",
+                        "type": "integer"
+                    },
+                    "createdAt": {
+                        "format": "date-time",
+                        "description": "",
+                        "type": "string"
+                    },
+                    "publishedAt": {
+                        "format": "date-time",
+                        "description": "",
+                        "type": "string"
+                    },
+                    "shiftLead": {
+                        "description": "",
+                        "type": "string"
+                    },
+                    "batchNote": {
+                        "description": "",
+                        "type": "string"
+                    },
+                    "dataEntryType": {
+                        "description": "",
+                        "type": "string"
+                    },
+                    "isPublished": {
+                        "description": "",
+                        "type": "boolean"
+                    },
+                    "isRevision": {
+                        "description": "",
+                        "type": "boolean"
+                    },
+                    "coreData": {
+                        "$ref": "#/components/schemas/CoreDataInternal",
+                        "description": ""
+                    }
+                }
+            },
+            "StateCoreData": {
+                "description": "",
+                "type": "object",
+                "allOf": [
+                    {
+                        "required": [
+                            "state"
+                        ],
+                        "type": "object",
+                        "properties": {
+                            "state": {
+                                "description": "State abbreviation ",
+                                "type": "string"
+                            }
+                        }
+                    },
+                    {
+                        "$ref": "#/components/schemas/CoreData"
+                    }
+                ]
+            },
+            "TimeSeries": {
+                "description": "",
+                "required": [
+                    "date"
+                ],
+                "type": "object",
+                "properties": {
+                    "date": {
+                        "format": "date",
+                        "description": "",
+                        "type": "string"
+                    }
+                }
+            },
+            "CoreDataHistorical": {
+                "description": "",
+                "type": "object",
+                "allOf": [
+                    {
+                        "type": "object"
+                    },
+                    {
+                        "$ref": "#/components/schemas/TimeSeries"
+                    },
+                    {
+                        "$ref": "#/components/schemas/CoreDataInternal"
+                    }
+                ]
+            },
+            "CoreDataHistoricalState": {
+                "description": "",
+                "required": [
+                    "state"
+                ],
+                "type": "object",
+                "allOf": [
+                    {
+                        "type": "object"
+                    },
+                    {
+                        "$ref": "#/components/schemas/TimeSeries"
+                    },
+                    {
+                        "$ref": "#/components/schemas/CoreDataInternalState"
+                    }
+                ]
+            },
+            "CoreDataInternalState": {
+                "description": "",
+                "type": "object",
+                "allOf": [
+                    {
+                        "type": "object",
+                        "properties": {
+                            "state": {
+                                "description": "",
+                                "type": "string"
+                            }
+                        }
+                    },
+                    {
+                        "$ref": "#/components/schemas/CoreDataInternal"
+                    }
+                ]
+            },
+            "CoreDataForPush": {
+                "description": "",
+                "type": "object",
+                "allOf": [
+                    {
+                        "type": "object",
+                        "properties": {
+                            "date": {
+                                "format": "dataDate",
+                                "description": "",
+                                "type": "string"
+                            }
+                        }
+                    },
+                    {
+                        "$ref": "#/components/schemas/CoreDataInternalState"
+                    }
+                ]
+            }
+        }
+    }
+}
