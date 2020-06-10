@@ -1,0 +1,149 @@
+{
+    "openapi": "3.0.2",
+    "info": {
+        "title": "COVID Tracking Project Shared Data Types",
+        "version": "0.0.1",
+        "description": "Project-wide data type definitions for the COVID Tracking Project"
+    },
+    "components": {
+        "schemas": {
+            "StateInfo": {
+                "type": "object",
+                "properties": {
+                    "state": {
+                        "nullable": false,
+                        "description": "State or territory postal code abbreviation.",
+                        "type": "string",
+                        "example": "CA"
+                    },
+                    "name": {
+                        "nullable": false,
+                        "description": "Full state or territory name.",
+                        "type": "string",
+                        "example": "California"
+                    },
+                    "covid19SiteOld": {
+                        "nullable": true,
+                        "deprecated": true,
+                        "description": "DEPRECATED",
+                        "type": "string"
+                    },
+                    "covid19Site": {
+                        "nullable": true,
+                        "description": "Webpage dedicated to making results available to the public. More likely to contain numbers. We make regular screenshots of this URL.",
+                        "type": "string"
+                    },
+                    "covid19SiteSecondary": {
+                        "nullable": true,
+                        "description": "Typically more informational.",
+                        "type": "string"
+                    },
+                    "twitter": {
+                        "nullable": true,
+                        "description": "Twitter for the State Health Department.",
+                        "type": "string",
+                        "example": "@CAPublicHealth"
+                    },
+                    "pui": {
+                        "nullable": true,
+                        "deprecated": true,
+                        "description": "DEPRECATED—Person Under Investigation; it is meant to capture positive, negative, and pending test results.",
+                        "type": "string",
+                        "example": "Only positives"
+                    },
+                    "pum": {
+                        "nullable": false,
+                        "deprecated": true,
+                        "description": "DEPRECATED—Person Under Monitoring; we don’t collect these numbers as they are reported far less consistently across states.",
+                        "type": "boolean",
+                        "example": false
+                    },
+                    "notes": {
+                        "nullable": true,
+                        "description": "Notes about the information available and how we collect or record it.",
+                        "type": "string"
+                    },
+                    "fips": {
+                        "nullable": false,
+                        "description": "Federal Information Processing Standard state code.",
+                        "type": "string",
+                        "example": "06"
+                    }
+                }
+            },
+            "CoreData": {
+                "title": "Root Type for CoreData",
+                "description": "The core set of data reported by the COVID Tracking Project",
+                "type": "object",
+                "properties": {
+                    "positive": {
+                        "nullable": true,
+                        "description": "Total cumulative positive test results.",
+                        "type": "integer"
+                    },
+                    "negative": {
+                        "nullable": true,
+                        "description": "Total cumulative negative test results",
+                        "type": "integer"
+                    },
+                    "pending": {
+                        "nullable": true,
+                        "description": "Tests that have been submitted to a lab but no results have been reported yet.",
+                        "type": "integer"
+                    },
+                    "hospitalizedCurrently": {
+                        "nullable": true,
+                        "description": "Number of individuals currently hospitalized.",
+                        "type": "integer"
+                    },
+                    "hospitalizedCumulative": {
+                        "nullable": true,
+                        "description": "Total number of individuals that have been hospitalized, including those that have been discharged.",
+                        "type": "integer"
+                    },
+                    "inIcuCurrently": {
+                        "nullable": true,
+                        "description": "Number of individuals currently in an ICU.",
+                        "type": "integer"
+                    },
+                    "inIcuCumulative": {
+                        "nullable": true,
+                        "description": "Total number of individuals that have been in the ICU.",
+                        "type": "integer"
+                    },
+                    "onVentilatorCurrently": {
+                        "nullable": true,
+                        "description": "Number of individuals currently on a ventilator.",
+                        "type": "integer"
+                    },
+                    "onVentilatorCumulative": {
+                        "nullable": true,
+                        "description": "Total number of individuals that have been on a ventilator.",
+                        "type": "integer"
+                    },
+                    "recovered": {
+                        "nullable": true,
+                        "description": "Total number of individuals that have tested negative after a previous positive test.",
+                        "type": "integer"
+                    },
+                    "death": {
+                        "nullable": true,
+                        "description": "Total cumulative number of people that have died.",
+                        "type": "integer"
+                    },
+                    "hospitalized": {
+                        "nullable": true,
+                        "description": "Total cumulative number of people hospitalized.",
+                        "type": "integer"
+                    },
+                    "notes": {
+                        "nullable": true,
+                        "description": "Public Notes related to state data",
+                        "type": "string",
+                        "example": "NOTE: \"total\", \"posNeg\", \"hospitalized\" will be removed in the future."
+                    }
+                }
+            }
+        }
+    }
+}
