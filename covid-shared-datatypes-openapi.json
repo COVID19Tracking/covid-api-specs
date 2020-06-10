@@ -38,6 +38,11 @@
                         "description": "Typically more informational.",
                         "type": "string"
                     },
+                    "covid19SiteTertiary": {
+                        "nullable": true,
+                        "description": "Typically more informational.",
+                        "type": "string"
+                    },
                     "twitter": {
                         "nullable": true,
                         "description": "Twitter for the State Health Department.",

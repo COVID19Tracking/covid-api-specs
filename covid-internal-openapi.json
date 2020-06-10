@@ -265,6 +265,49 @@
                 },
                 "summary": "Retrieve state metadata"
             }
+        },
+        "/batches/edit": {
+            "summary": "Submit a set of rows to edit",
+            "description": "Note that it is expected that each CoreData row has an existing corresponding row already stored in the DB for the state and date it represents.",
+            "post": {
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/BatchForEdit"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "tags": [
+                    "batches"
+                ],
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/BatchPostResult"
+                                }
+                            }
+                        },
+                        "description": "successful operation"
+                    },
+                    "400": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/IntegrityErrors"
+                                }
+                            }
+                        },
+                        "description": "Data integrity validation failed"
+                    }
+                },
+                "summary": "Push an \"edit\" batch of data to the database",
+                "description": "These core data rows will be in the preview state until this edit batch is published."
+            }
         }
     },
     "components": {
@@ -320,7 +363,8 @@
                     "dataEntryType": {
                         "description": "Describes the type of batch. A daily push?",
                         "enum": [
-                            "daily"
+                            "daily",
+                            "edit"
                         ],
                         "type": "string"
                     }
@@ -381,11 +425,6 @@
                             "dateChecked": {
                                 "format": "date-time",
                                 "description": "The datetime we last visited their website",
-                                "type": "string"
-                            },
-                            "publicationDate": {
-                                "format": "date",
-                                "description": "The date that we release the data. When there are historical edits, this value will be different from the current date.",
                                 "type": "string"
                             }
                         }
@@ -563,6 +602,26 @@
                         "$ref": "#/components/schemas/CoreDataInternalState"
                     }
                 ]
+            },
+            "BatchForEdit": {
+                "description": "A subset of data from the spreadsheet to be sent in an edit push",
+                "required": [
+                    "context"
+                ],
+                "type": "object",
+                "properties": {
+                    "context": {
+                        "$ref": "#/components/schemas/PushContext",
+                        "description": "Note that the dataEntryType enum here must be set to \"edit\"."
+                    },
+                    "coreData": {
+                        "description": "",
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/CoreDataInternalState"
+                        }
+                    }
+                }
             }
         }
     }
