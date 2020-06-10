@@ -313,10 +313,10 @@
     "components": {
         "schemas": {
             "CoreData": {
-                "$ref": "https://raw.githubusercontent.com/COVID19Tracking/covid-api-specs/draft-internal-api/covid-shared-datatypes-openapi.json#/components/schemas/CoreData"
+                "$ref": "https://raw.githubusercontent.com/COVID19Tracking/covid-api-specs/master/covid-shared-datatypes-openapi.json#/components/schemas/CoreData"
             },
             "StateInfo": {
-                "$ref": "https://raw.githubusercontent.com/COVID19Tracking/covid-api-specs/draft-internal-api/covid-shared-datatypes-openapi.json#/components/schemas/StateInfo"
+                "$ref": "https://raw.githubusercontent.com/COVID19Tracking/covid-api-specs/master/covid-shared-datatypes-openapi.json#/components/schemas/StateInfo"
             },
             "BatchForPush": {
                 "description": "A full set of data from the spreadsheet to be sent in a push",
